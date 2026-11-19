@@ -6,6 +6,7 @@ WORKDIR /app
 # Copy package manifest and prisma schema first so postinstall (prisma generate) can run
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY prisma ./prisma
+COPY scripts ./scripts
 
 # Install dependencies (postinstall will run prisma generate)
 RUN corepack enable \
