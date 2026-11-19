@@ -1,5 +1,6 @@
 
 import { tenantStorageKey } from './tenantStorage';
+import { API_BASE_URL } from './apiBase';
 
 const PENDING_KEY = 'blm_pending_ops';
 
@@ -54,18 +55,17 @@ export async function flushPending(): Promise<{ ok: boolean; details?: any }> {
   const nonRetryable: any[] = [];
   for (const op of q) {
     try {
-      const BASE = ((import.meta as any).env?.VITE_API_URL) || 'http://localhost:4000';
       let res: Response | null = null;
       if (op.type === 'saveBlock') {
         // POST /api/blocks handles create or update
-        res = await fetch(`${BASE}/api/blocks`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(op.payload) });
+        res = await fetch(`${API_BASE_URL}/api/blocks`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(op.payload) });
       } else if (op.type === 'deleteBlock') {
-        res = await fetch(`${BASE}/api/blocks/${op.payload.id}`, { method: 'DELETE', credentials: 'include' });
+        res = await fetch(`${API_BASE_URL}/api/blocks/${op.payload.id}`, { method: 'DELETE', credentials: 'include' });
       } else if (op.type === 'saveApartment') {
-        res = await fetch(`${BASE}/api/apartments`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(op.payload) });
+        res = await fetch(`${API_BASE_URL}/api/apartments`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(op.payload) });
       } else if (op.type === 'createPayment') {
         const { apartmentId, amount, date, note } = op.payload;
-        res = await fetch(`${BASE}/api/apartments/${apartmentId}/payments`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount, date, note }) });
+        res = await fetch(`${API_BASE_URL}/api/apartments/${apartmentId}/payments`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount, date, note }) });
       }
 
       if (res && !res.ok) {

@@ -16,9 +16,9 @@ import { SuperAdminPanel } from './components/SuperAdminPanel';
 import { UsageGuideModal, GuideContext } from './components/UsageGuideModal';
 import { TRANSLATIONS } from './constants';
 import { api } from './services/api';
+import { API_BASE_URL } from './services/apiBase';
 import { Apartment, Block, Language, Theme, User, ViewState } from './types';
 
-const API_URL = ((import.meta as any).env?.VITE_API_URL) || 'http://localhost:4000';
 const isControlPath = () => window.location.pathname.replace(/\/+$/, '') === '/control';
 
 const App: React.FC = () => {
@@ -96,7 +96,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!currentUser) return;
-    const socket = io(API_URL, { withCredentials: true });
+    const socket = io(API_BASE_URL, { withCredentials: true });
     socket.on('connect', () => console.log('[WS] Connected to server'));
     socket.on('data_updated', () => {
       console.log('[WS] Data updated, refreshing...');

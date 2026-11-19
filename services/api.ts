@@ -1,6 +1,7 @@
 import { Apartment, AuditLogEntry, Block, Payment, TenantAccount, User } from '../types';
 import { db as mockDb } from './mockDb';
 import * as sync from './sync';
+import { API_BASE_URL } from './apiBase';
 import { setTenantStorageScope, tenantStorageKey } from './tenantStorage';
 
 /**
@@ -8,8 +9,6 @@ import { setTenantStorageScope, tenantStorageKey } from './tenantStorage';
  * 
  * To switch back to mock database, replace implementation with mockDb calls
  */
-
-const BASE = ((import.meta as any).env?.VITE_API_URL) || 'http://localhost:4000';
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -19,7 +18,7 @@ class ApiError extends Error {
 }
 
 const fetchApi = async (path: string, init: RequestInit = {}) => {
-  const res = await fetch(`${BASE}${path}`, { ...init, credentials: 'include' });
+  const res = await fetch(`${API_BASE_URL}${path}`, { ...init, credentials: 'include' });
   if (res.status === 401 && !['/api/login', '/api/me', '/api/logout'].includes(path)) {
     window.dispatchEvent(new Event('blm:unauthorized'));
   }
