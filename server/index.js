@@ -1,22 +1,19 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from './prisma-client.js';
 import bcrypt from 'bcryptjs';
 import cors from 'cors';
 import { createHash, randomBytes, randomUUID } from 'crypto';
 import express from 'express';
 import { AsyncLocalStorage } from 'async_hooks';
-import { rm } from 'fs/promises';
 import http from 'http';
-import path from 'path';
 import { Server } from 'socket.io';
 import { hasPermission, isValidPassword, isValidRole, PERMISSIONS } from './auth.js';
-import { disconnectTenantClient, getPlatformDatabaseUrl, getTenantDatabaseUrl, getTenantPrisma, migrateTenantDatabase, provisionTenantDatabase } from './tenants.js';
+import { deleteTenantDatabase, getDefaultTenantDatabaseUrl, getPlatformDatabaseUrl, getTenantDatabaseUrl, getTenantPrisma, migrateTenantDatabase, provisionTenantDatabase, resolveDatabaseUrl } from './tenants.js';
 
 const platformDatabaseUrl = getPlatformDatabaseUrl();
-const legacyDatabaseUrl = process.env.DATABASE_URL;
-const sqlitePath = databaseUrl => databaseUrl?.startsWith('file:') ? path.resolve(databaseUrl.slice('file:'.length).split('?')[0]) : databaseUrl;
-if (sqlitePath(platformDatabaseUrl) === sqlitePath(legacyDatabaseUrl)) throw new Error('platform_database_must_be_separate');
+const legacyDatabaseUrl = getDefaultTenantDatabaseUrl();
+if (resolveDatabaseUrl(platformDatabaseUrl) === resolveDatabaseUrl(legacyDatabaseUrl)) throw new Error('platform_database_must_be_separate');
 const platformPrisma = new PrismaClient({ datasources: { db: { url: platformDatabaseUrl } } });
-const legacyPrisma = new PrismaClient({ datasources: { db: { url: legacyDatabaseUrl } } });
+const legacyPrisma = new PrismaClient({ datasources: { db: { url: resolveDatabaseUrl(legacyDatabaseUrl) } } });
 const tenantContext = new AsyncLocalStorage();
 const prisma = new Proxy(platformPrisma, {
   get(target, property) {
@@ -315,7 +312,7 @@ app.post('/api/control/tenants', async (req, res) => {
     await logActivity(req, 'tenant_created', { tenantId: id, name, username }, req.user.username, id);
     res.status(201).json({ id: tenant.id, name: tenant.name, username, isActive: tenant.isActive, createdAt: tenant.createdAt });
   } catch (error) {
-    if (databaseUrl) await rm(databaseUrl.slice('file:'.length), { force: true });
+    if (databaseUrl) await deleteTenantDatabase(databaseUrl);
     if (error?.code === 'P2002') return res.status(409).json({ ok: false, message: 'username_taken' });
     console.error('Tenant creation failed', error);
     res.status(500).json({ ok: false, message: 'tenant_creation_failed' });
@@ -355,8 +352,7 @@ app.delete('/api/control/tenants/:id', async (req, res) => {
   });
 
   try {
-    await disconnectTenantClient(tenant.databaseUrl);
-    await rm(expectedDatabaseUrl.slice('file:'.length), { force: true });
+    await deleteTenantDatabase(expectedDatabaseUrl);
   } catch (error) {
     console.error('Tenant database cleanup failed', error);
     return res.status(500).json({ ok: false, message: 'tenant_database_cleanup_failed' });
@@ -844,6 +840,7 @@ const server = httpServer.listen(port, async () => {
   console.log(`Server running on http://localhost:${port}`);
   // Ensure db migrations are applied by checking connectivity
   try {
+    await migrateTenantDatabase(legacyDatabaseUrl);
     await migrateTenantDatabase(platformDatabaseUrl);
     await prisma.$connect();
     await legacyPrisma.$connect();

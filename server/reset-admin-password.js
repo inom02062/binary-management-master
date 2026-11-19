@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from './prisma-client.js';
 import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { isValidPassword } from './auth.js';

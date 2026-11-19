@@ -37,6 +37,14 @@ The frontend will try to call the backend at `http://localhost:4000` by default.
 
 Data reads can use the local cache while the backend is offline, but login and all protected actions require a reachable backend and an authenticated session.
 
+### Supabase PostgreSQL deployment
+
+The backend can use Supabase PostgreSQL while local development continues to use SQLite. Set `DB_PROVIDER=postgresql` and configure the Supabase PostgreSQL connection URL as a server-side `DATABASE_URL` on the backend host. `PLATFORM_DATABASE_URL` may use the same connection URL; the server assigns it to the `platform` schema, uses the `main` schema for the initial company, and creates a separate schema for each new company.
+
+Run the Express/Socket.IO backend on a persistent Node.js host such as Railway or Render. Configure `ALLOWED_ORIGINS` with the exact Vercel site origin and set `BOOTSTRAP_ADMIN_USERNAME` and `BOOTSTRAP_ADMIN_PASSWORD` in the backend host before its first start. Set Vercel's `VITE_API_URL` to the backend's public URL, then redeploy the frontend.
+
+Keep the Supabase connection URL and bootstrap credentials only in the backend host's secret environment variables. Never use the database URL as `VITE_API_URL` or expose it to the browser. A new PostgreSQL database starts empty; local SQLite users, companies and business data are not copied automatically.
+
 ### Accounts, roles and security
 
 The server enforces tenant-scoped roles on every API request:

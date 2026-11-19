@@ -3,7 +3,33 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'fs/promises';
 import os from 'os';
 import path from 'path';
-import { disconnectTenantClients, getTenantDatabaseUrl, getTenantPrisma, provisionTenantDatabase } from './tenants.js';
+import { disconnectTenantClients, getDefaultTenantDatabaseUrl, getPlatformDatabaseUrl, getTenantDatabaseUrl, getTenantPrisma, provisionTenantDatabase, resolveDatabaseUrl } from './tenants.js';
+
+test('PostgreSQL tenant references resolve to isolated schemas without storing connection credentials', () => {
+  const previous = {
+    DB_PROVIDER: process.env.DB_PROVIDER,
+    DATABASE_URL: process.env.DATABASE_URL,
+    PLATFORM_DATABASE_URL: process.env.PLATFORM_DATABASE_URL,
+  };
+  process.env.DB_PROVIDER = 'postgresql';
+  process.env.DATABASE_URL = 'postgresql://db.example/app?sslmode=require';
+  process.env.PLATFORM_DATABASE_URL = process.env.DATABASE_URL;
+
+  try {
+    const tenantId = 'c0a80123-4567-489a-bcde-123456789012';
+    const tenantReference = getTenantDatabaseUrl(tenantId);
+    assert.equal(tenantReference, 'postgres-schema:tenant_c0a80123_4567_489a_bcde_123456789012');
+    assert.equal(new URL(resolveDatabaseUrl(tenantReference)).searchParams.get('schema'), 'tenant_c0a80123_4567_489a_bcde_123456789012');
+    assert.equal(getDefaultTenantDatabaseUrl(), 'postgres-schema:main');
+    assert.equal(new URL(getPlatformDatabaseUrl()).searchParams.get('schema'), 'platform');
+    assert.equal(tenantReference.includes('@'), false);
+  } finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+});
 
 test('tenant database URL uses a server-generated ID under the tenant data directory', () => {
   const tenantId = 'c0a80123-4567-489a-bcde-123456789012';

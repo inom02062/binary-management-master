@@ -1,10 +1,15 @@
 node_modules
+generated
 dist
 .vscode
 .env
 .env.*
 *.log
 dev.db
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 server.log
 .git
 .gitignore
