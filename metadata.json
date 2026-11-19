@@ -1,0 +1,5 @@
+{
+  "name": "Binary Learn Management",
+  "description": "A Telegram-style apartment analysis and management system featuring interactive maps, block management, and tenant tracking.",
+  "requestFramePermissions": []
+}

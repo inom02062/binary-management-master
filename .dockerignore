@@ -1,0 +1,12 @@
+node_modules
+dist
+.vscode
+.env
+.env.*
+*.log
+dev.db
+server.log
+.git
+.gitignore
+pnpm-debug.log
+.DS_Store

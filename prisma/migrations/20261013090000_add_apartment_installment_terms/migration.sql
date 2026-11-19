@@ -1,0 +1,5 @@
+ALTER TABLE "Apartment" ADD COLUMN "downPayment" REAL NOT NULL DEFAULT 0;
+ALTER TABLE "Apartment" ADD COLUMN "firstDueDate" TEXT;
+ALTER TABLE "Apartment" ADD COLUMN "installmentMonths" INTEGER;
+ALTER TABLE "Apartment" ADD COLUMN "scheduleBasePaid" REAL NOT NULL DEFAULT 0;
+ALTER TABLE "Apartment" ADD COLUMN "gracePeriodDays" INTEGER NOT NULL DEFAULT 0;

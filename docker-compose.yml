@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+    volumes:
+      - ./:/app
+      - blm_data:/data
+      - blm_server_pnpm_modules:/app/node_modules
+    environment:
+      - DATABASE_URL=file:/data/dev.db
+      - PLATFORM_DATABASE_URL=file:/data/platform.db
+      - TENANT_DATA_DIR=/data/tenants
+      - NODE_ENV=development
+      - PORT=4000
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3001,http://127.0.0.1:3001}
+      - BOOTSTRAP_ADMIN_USERNAME=${BOOTSTRAP_ADMIN_USERNAME:-}
+      - BOOTSTRAP_ADMIN_PASSWORD=${BOOTSTRAP_ADMIN_PASSWORD:-}
+      - RESET_ADMIN_USERNAME=${RESET_ADMIN_USERNAME:-}
+      - RESET_ADMIN_PASSWORD=${RESET_ADMIN_PASSWORD:-}
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: [ "CMD-SHELL", "node -e \"require('http').get('http://localhost:4000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(2))\"" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    volumes:
+      - ./:/app
+      - blm_frontend_pnpm_modules:/app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:4000
+    ports:
+      - "3001:3001"
+    depends_on:
+      server:
+        condition: service_healthy
+    command: [ "./node_modules/.bin/vite", "--host", "0.0.0.0", "--port", "3001" ]
+
+volumes:
+  blm_data:
+    name: blm_data
+  blm_server_pnpm_modules:
+  blm_frontend_pnpm_modules:
