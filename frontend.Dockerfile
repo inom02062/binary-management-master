@@ -5,6 +5,7 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY prisma ./prisma
+COPY scripts ./scripts
 
 RUN corepack enable \
   && corepack prepare pnpm@10 --activate \
