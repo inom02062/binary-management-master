@@ -20,7 +20,6 @@ RUN chmod +x /app/server/entrypoint.sh || true
 
 ENV NODE_ENV=production
 ENV DATABASE_URL="file:/data/dev.db"
-ENV PLATFORM_DATABASE_URL="file:/data/platform.db"
 ENV TENANT_DATA_DIR="/data/tenants"
 EXPOSE 4000
 
