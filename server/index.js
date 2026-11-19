@@ -7,6 +7,7 @@ import { AsyncLocalStorage } from 'async_hooks';
 import http from 'http';
 import { Server } from 'socket.io';
 import { hasPermission, isValidPassword, isValidRole, PERMISSIONS } from './auth.js';
+import { createExpiredSessionCookie, createSessionCookie } from './sessionCookie.js';
 import { deleteTenantDatabase, getDefaultTenantDatabaseUrl, getPlatformDatabaseUrl, getTenantDatabaseUrl, getTenantPrisma, migrateTenantDatabase, provisionTenantDatabase, resolveDatabaseUrl } from './tenants.js';
 
 const platformDatabaseUrl = getPlatformDatabaseUrl();
@@ -61,13 +62,13 @@ function tokenHash(token) {
 }
 
 function setSessionCookie(res, token) {
-  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-  res.setHeader('Set-Cookie', `${cookieName}=${encodeURIComponent(token)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${Math.floor(sessionDurationMs / 1000)}${secure}`);
+  const production = process.env.NODE_ENV === 'production';
+  res.setHeader('Set-Cookie', createSessionCookie(token, Math.floor(sessionDurationMs / 1000), production));
 }
 
 function clearSessionCookie(res) {
-  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-  res.setHeader('Set-Cookie', `${cookieName}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${secure}`);
+  const production = process.env.NODE_ENV === 'production';
+  res.setHeader('Set-Cookie', createExpiredSessionCookie(production));
 }
 
 async function logActivity(req, action, details = null, username = req.user?.username || 'anonymous', tenantId = req.user?.tenantId ?? null) {
