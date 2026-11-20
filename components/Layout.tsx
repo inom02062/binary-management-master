@@ -17,16 +17,17 @@ export const Layout: React.FC<LayoutProps> = ({ title, onBack, children, actions
             {onBack && (
               <button
                 onClick={onBack}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-500/40 dark:hover:bg-slate-800 dark:hover:text-blue-400"
+                aria-label="Go back"
+                className="layout-back-button inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-500/40 dark:hover:bg-slate-800 dark:hover:text-blue-400"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
-            <div className="h-7 w-px bg-slate-200 dark:bg-slate-700" />
+            <div className="layout-title-divider h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700" />
             <h1 className="truncate text-lg font-black tracking-tight text-slate-800 dark:text-white">{title}</h1>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="layout-header-actions flex min-w-0 items-center gap-2">
             {actions}
           </div>
         </div>

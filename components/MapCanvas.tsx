@@ -120,6 +120,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({ blocks, setBlocks, apartme
   blocksRef.current = blocks;
 
   const touchRef = useRef<{ initialDist: number | null }>({ initialDist: null });
+  const lastTouchTapRef = useRef<{ blockId: string; time: number; x: number; y: number } | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
@@ -177,12 +178,28 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({ blocks, setBlocks, apartme
   const handlePointerUp = async (e: React.PointerEvent) => {
     const { blockId, mode, hasMoved } = dragRef.current;
 
-    if (mode !== 'IDLE' && blockId) {
+    if (mode !== 'IDLE' && blockId && hasMoved) {
       // Use blocksRef to get the most recent state from setBlocks
       const currentBlock = blocksRef.current.find(b => b.id === blockId);
       if (currentBlock) {
         await api.saveBlock(currentBlock);
       }
+    }
+
+    if (e.pointerType === 'touch' && mode === 'DRAG' && blockId && !hasMoved) {
+      const previousTap = lastTouchTapRef.current;
+      const isDoubleTap = previousTap?.blockId === blockId
+        && e.timeStamp - previousTap.time < 450
+        && Math.hypot(e.clientX - previousTap.x, e.clientY - previousTap.y) < 32;
+
+      if (isDoubleTap) {
+        lastTouchTapRef.current = null;
+        onBlockClick?.(blockId);
+      } else {
+        lastTouchTapRef.current = { blockId, time: e.timeStamp, x: e.clientX, y: e.clientY };
+      }
+    } else if (e.pointerType === 'touch') {
+      lastTouchTapRef.current = null;
     }
 
     dragRef.current = {

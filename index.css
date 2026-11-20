@@ -24,24 +24,55 @@ textarea {
 
 @media (max-width: 767px) {
   .layout-header-inner {
-    height: 56px;
-    padding-left: 10px;
-    padding-right: 10px;
+    height: auto;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 5px;
+    padding: 7px 12px 9px;
   }
 
   .layout-header-title {
-    max-width: 42%;
+    width: 100%;
+    max-width: none;
+    min-height: 42px;
+    gap: 10px;
   }
 
   .layout-header-title h1 {
-    font-size: 14px;
+    min-width: 0;
+    font-size: 15px;
+  }
+
+  .layout-back-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #334155;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+  }
+
+  .dark .layout-back-button {
+    background: #1e293b;
+    color: #e2e8f0;
+  }
+
+  .layout-title-divider {
+    display: none;
+  }
+
+  .layout-header-actions {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .app-header-actions {
-    max-width: 58%;
+    width: 100%;
+    max-width: none;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
+    gap: 6px;
   }
 
   .app-header-actions::-webkit-scrollbar {
@@ -49,9 +80,17 @@ textarea {
   }
 
   .app-header-actions > button {
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    background: rgba(248, 250, 252, 0.75);
+  }
+
+  .dark .app-header-actions > button {
+    border-color: rgba(71, 85, 105, 0.45);
+    background: rgba(30, 41, 59, 0.75);
   }
 
   main > div {
