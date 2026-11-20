@@ -47,7 +47,7 @@ export const Dashboard: React.FC<{ blocks: Block[], apartments: Apartment[], lan
         : (lang === 'uz' ? 'Kattalashtirish' : lang === 'ru' ? 'Развернуть карту' : 'Expand map');
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="dashboard-mobile space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="max-w-xl mx-auto">
                 <div className="relative group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -60,7 +60,7 @@ export const Dashboard: React.FC<{ blocks: Block[], apartments: Apartment[], lan
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="dashboard-stats grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                     { label: t.totalApts, val: stats.total, icon: Building, color: 'text-slate-500', bg: 'bg-slate-100 dark:bg-slate-800/80', accent: 'from-slate-500 to-slate-600' },
                     { label: t.occupancyRate, val: `${stats.occupancyRate}%`, icon: PieChart, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20', accent: 'from-emerald-500 to-emerald-600', progress: stats.occupancyRate },
@@ -84,7 +84,7 @@ export const Dashboard: React.FC<{ blocks: Block[], apartments: Apartment[], lan
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div className="dashboard-map-grid grid grid-cols-1 gap-8 lg:grid-cols-3">
                 <div className={`${isMapExpanded ? `fixed inset-6 z-[120] flex origin-center flex-col transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none sm:inset-8 lg:inset-12 ${mapExpansion === 'open' ? 'scale-100 opacity-100' : 'scale-[0.97] opacity-0'}` : 'lg:col-span-2'} overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white/95 shadow-[0_20px_70px_rgba(15,23,42,0.2)] backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/95`}>
                     <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
                         <h2 className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-200">

@@ -1,4 +1,4 @@
-import { BarChart3, CircleHelp, CreditCard, Loader2, LogOut, Moon, Search, Settings2, ShieldCheck, Sun } from 'lucide-react';
+import { BarChart3, CircleHelp, CreditCard, LayoutDashboard, Loader2, LogOut, Moon, Search, Settings2, ShieldCheck, Sun } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { AdminUsersView } from './components/AdminUsersView';
@@ -124,7 +124,7 @@ const App: React.FC = () => {
   }, [theme]);
 
   const headerActions = (
-    <div className="flex items-center gap-1">
+    <div className="app-header-actions flex items-center gap-1">
       {loading && <Loader2 className="w-4 h-4 animate-spin text-slate-400 mr-2" />}
       <button onClick={() => { setGuideContextOverride(null); setIsGuideOpen(true); }} title={lang === 'uz' ? 'Bu oynaning instruksiyasi' : lang === 'ru' ? 'Инструкция для этого окна' : 'Instructions for this window'} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-500 transition-colors"><CircleHelp size={16} /></button>
       <button onClick={() => setLang(l => l === 'ru' ? 'en' : l === 'en' ? 'uz' : 'ru')} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-[10px] font-black text-slate-500 transition-colors uppercase">{lang}</button>
@@ -220,7 +220,7 @@ const App: React.FC = () => {
         if (!block) return null;
         return (
           <Layout title={block.name} onBack={() => setView({ type: 'DASHBOARD' })} actions={headerActions}>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="floor-grid grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
               {Array.from({ length: block.floorsCount }, (_, i) => block.floorsCount - i).map(floor => (
                 <button key={floor} onClick={() => setView({ type: 'FLOOR_DETAILS', blockId: block.id, floor })} style={{ animationDelay: `${Math.min((block.floorsCount - floor) * 35, 280)}ms` }} className="animate-in fade-in slide-in-from-bottom-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 text-center hover:border-blue-500 transition-all shadow-sm group active:scale-95">
                   <p className="text-2xl font-black text-slate-800 dark:text-white mb-1">{floor}</p>
@@ -261,6 +261,32 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 font-sans selection:bg-blue-500/20">
       {!currentUser ? <LoginScreen onLogin={acceptLogin} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} /> : <>{renderContent()}
+      {view.type !== 'CONTROL_PANEL' && (
+        <nav className="app-mobile-nav" aria-label={lang === 'uz' ? 'Mobil navigatsiya' : lang === 'ru' ? 'Мобильная навигация' : 'Mobile navigation'}>
+          <button type="button" className={view.type === 'DASHBOARD' ? 'active' : ''} onClick={() => setView({ type: 'DASHBOARD' })}>
+            <LayoutDashboard size={20} />
+            <span>{lang === 'uz' ? 'Bosh sahifa' : lang === 'ru' ? 'Главная' : 'Home'}</span>
+          </button>
+          <button type="button" className={view.type === 'SEARCH' ? 'active' : ''} onClick={() => setView({ type: 'SEARCH' })}>
+            <Search size={20} />
+            <span>{t.search}</span>
+          </button>
+          <button type="button" className={view.type === 'INSTALLMENTS_MANAGER' ? 'active' : ''} onClick={() => setView({ type: 'INSTALLMENTS_MANAGER' })}>
+            <CreditCard size={20} />
+            <span>{lang === 'uz' ? 'To‘lovlar' : lang === 'ru' ? 'Платежи' : 'Payments'}</span>
+          </button>
+          <button type="button" className={view.type === 'ANALYTICS' ? 'active' : ''} onClick={() => setView({ type: 'ANALYTICS' })}>
+            <BarChart3 size={20} />
+            <span>{t.analytics}</span>
+          </button>
+          {currentUser.role !== 'VIEWER' && (
+            <button type="button" onClick={() => setIsDataModalOpen(true)}>
+              <Settings2 size={20} />
+              <span>{t.settings}</span>
+            </button>
+          )}
+        </nav>
+      )}
       {isDataModalOpen && <DataManagementModal onClose={() => setIsDataModalOpen(false)} lang={lang} onImport={refreshData} canExport={currentUser.role !== 'VIEWER'} canImport={currentUser.role === 'SUPERADMIN'} canReset={currentUser.role === 'HYPERADMIN'} onGuide={() => { setGuideContextOverride('settings'); setIsGuideOpen(true); }} />}
       {currentApartment && view.type === 'SEARCH' && <ApartmentModal apartment={currentApartment} lang={lang} readOnly={currentUser.role === 'VIEWER'} onGuide={() => { setGuideContextOverride('apartment'); setIsGuideOpen(true); }} onClose={() => setCurrentApartment(null)} onSave={async (u) => { try { await api.saveApartment(u); setCurrentApartment(null); await refreshData(); } catch (e: any) { alert(e?.message || 'Save failed'); } }} />}
       {isGuideOpen && <UsageGuideModal lang={lang} context={guideContextOverride || (guideContext as GuideContext)} onClose={() => { setIsGuideOpen(false); setGuideContextOverride(null); }} />}</>}
