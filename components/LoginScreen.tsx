@@ -318,6 +318,8 @@ export const LoginScreen: React.FC<{
 
     const errorText = error === 'password_reset_required'
         ? lang === 'uz' ? 'Standart admin paroli bloklangan. Yangi parol uchun administrator reset yo‘riqnomasiga amal qiling.' : lang === 'ru' ? 'Стандартный пароль администратора отключен. Задайте новый пароль по инструкции сброса в README.' : 'The default admin password is disabled. Set a new password using the reset steps in README.'
+        : error === 'too_many_attempts'
+            ? lang === 'uz' ? 'Urinishlar soni oshib ketdi. Biroz kutib, qayta urinib ko‘ring.' : lang === 'ru' ? 'Слишком много попыток. Подождите и попробуйте снова.' : 'Too many attempts. Please wait and try again.'
         : error === 'server_unavailable'
             ? lang === 'uz' ? 'Serverga ulanib bo‘lmadi.' : lang === 'ru' ? 'Не удалось подключиться к серверу.' : 'Could not connect to the server.'
             : lang === 'uz' ? 'Login yoki parol noto‘g‘ri.' : lang === 'ru' ? 'Неверный логин или пароль.' : 'Invalid username or password.';
@@ -356,6 +358,12 @@ export const LoginScreen: React.FC<{
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         type="text"
+                        name="username"
+                        autoComplete="username"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        required
                         placeholder={t.login}
                         className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm dark:text-white"
                         value={user}
@@ -363,6 +371,10 @@ export const LoginScreen: React.FC<{
                     />
                     <input
                         type="password"
+                        name="password"
+                        autoComplete="current-password"
+                        autoCapitalize="none"
+                        required
                         placeholder={t.password}
                         className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm dark:text-white"
                         value={pass}
