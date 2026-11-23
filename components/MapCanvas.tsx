@@ -14,6 +14,7 @@ const DEFAULT_3D_SETTINGS: Map3DSettings = {
   showFloorLines: true,
   showShadows: true,
   showFloorCount: true,
+  showFloorNumbers: true,
 };
 
 interface MapCanvasProps {
@@ -64,9 +65,9 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({ blocks, setBlocks, apartme
   const t = TRANSLATIONS[lang];
   const colorBlock = blocks.find(block => block.id === selectedBlockId) ?? blocks[0];
   const modelLabels = {
-    en: { settings: '3D settings', width: 'Building width', depth: 'Building depth', floorHeight: 'Floor height', floorLines: 'Floor separators', floorCount: 'Show floor counts', shadows: 'Shadows', reset: 'Reset defaults', building: 'Building color', selectBuilding: 'Select building', theme: 'Map theme' },
-    ru: { settings: 'Настройки 3D', width: 'Ширина здания', depth: 'Глубина здания', floorHeight: 'Высота этажа', floorLines: 'Разделители этажей', floorCount: 'Показывать число этажей', shadows: 'Тени', reset: 'Сбросить настройки', building: 'Цвет здания', selectBuilding: 'Выберите здание', theme: 'Тема карты' },
-    uz: { settings: '3D sozlamalar', width: 'Bino eni', depth: 'Bino chuqurligi', floorHeight: 'Qavat balandligi', floorLines: 'Qavat ajratgichlari', floorCount: 'Qavatlar sonini ko‘rsatish', shadows: 'Soyalar', reset: 'Standart holatga qaytarish', building: 'Bino rangi', selectBuilding: 'Binoni tanlang', theme: 'Xarita mavzusi' },
+    en: { settings: '3D settings', width: 'Building width', depth: 'Building depth', floorHeight: 'Floor height', floorLines: 'Floor separators', floorCount: 'Show floor counts', floorNumbers: 'Number each floor', shadows: 'Shadows', reset: 'Reset defaults', building: 'Building color', selectBuilding: 'Select building', theme: 'Map theme' },
+    ru: { settings: 'Настройки 3D', width: 'Ширина здания', depth: 'Глубина здания', floorHeight: 'Высота этажа', floorLines: 'Разделители этажей', floorCount: 'Показывать число этажей', floorNumbers: 'Номер на каждом этаже', shadows: 'Тени', reset: 'Сбросить настройки', building: 'Цвет здания', selectBuilding: 'Выберите здание', theme: 'Тема карты' },
+    uz: { settings: '3D sozlamalar', width: 'Bino eni', depth: 'Bino chuqurligi', floorHeight: 'Qavat balandligi', floorLines: 'Qavat ajratgichlari', floorCount: 'Qavatlar sonini ko‘rsatish', floorNumbers: 'Har qavat raqamini ko‘rsatish', shadows: 'Soyalar', reset: 'Standart holatga qaytarish', building: 'Bino rangi', selectBuilding: 'Binoni tanlang', theme: 'Xarita mavzusi' },
   }[lang];
 
   const saveBuildingColor = async (block: Block, color: string) => {
@@ -440,6 +441,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({ blocks, setBlocks, apartme
           ))}
           {([
             { key: 'showFloorCount', label: modelLabels.floorCount },
+            { key: 'showFloorNumbers', label: modelLabels.floorNumbers },
             { key: 'showFloorLines', label: modelLabels.floorLines },
             { key: 'showShadows', label: modelLabels.shadows },
           ] as const).map(toggle => (

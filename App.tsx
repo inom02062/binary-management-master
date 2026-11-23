@@ -214,7 +214,7 @@ const App: React.FC = () => {
         </div>
       );
       case 'DASHBOARD': return <Layout title={t.dashboard} actions={headerActions}><Dashboard blocks={blocks} apartments={allApartments} lang={lang} t={t} onNavigate={setView} onRefresh={refreshData} canWrite={currentUser?.role !== 'VIEWER'} /></Layout>;
-      case 'MAP_EDITOR': return <Layout title={t.map} onBack={() => setView({ type: 'DASHBOARD' })} actions={headerActions}><div className="h-[calc(100vh-140px)] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-inner overflow-hidden"><MapCanvas blocks={blocks} setBlocks={setBlocks} apartments={allApartments} onRefresh={refreshData} lang={lang} theme={theme} setTheme={setTheme} onBlockClick={(id) => setView({ type: 'BLOCK_DETAILS', blockId: id })} onFloorClick={(blockId, floor) => setView({ type: 'FLOOR_DETAILS', blockId, floor })} /></div></Layout>;
+      case 'MAP_EDITOR': return <Layout title={t.map} onBack={() => setView({ type: 'DASHBOARD' })} actions={headerActions}><div className="h-[calc(100dvh-220px)] md:h-[calc(100vh-140px)] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-inner overflow-hidden"><MapCanvas blocks={blocks} setBlocks={setBlocks} apartments={allApartments} onRefresh={refreshData} lang={lang} theme={theme} setTheme={setTheme} onBlockClick={(id) => setView({ type: 'BLOCK_DETAILS', blockId: id })} onFloorClick={(blockId, floor) => setView({ type: 'FLOOR_DETAILS', blockId, floor })} /></div></Layout>;
       case 'BLOCK_DETAILS':
         const block = blocks.find(b => b.id === view.blockId);
         if (!block) return null;
