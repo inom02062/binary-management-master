@@ -11,6 +11,7 @@ export interface Map3DSettings {
   showFloorLines: boolean;
   showShadows: boolean;
   showFloorCount: boolean;
+  showFloorNumbers: boolean;
 }
 
 interface Map3DViewProps {
@@ -114,6 +115,34 @@ export const Map3DView: React.FC<Map3DViewProps> = ({ blocks, settings, lang, th
         floorMesh.userData.floor = floor;
         scene.add(floorMesh);
         buildingMeshes.push(floorMesh);
+
+        if (settings.showFloorNumbers) {
+          const numberCanvas = document.createElement('canvas');
+          numberCanvas.width = 128;
+          numberCanvas.height = 128;
+          const numberContext = numberCanvas.getContext('2d');
+          if (numberContext) {
+            numberContext.fillStyle = 'rgba(15, 23, 42, 0.88)';
+            numberContext.beginPath();
+            numberContext.arc(64, 64, 56, 0, Math.PI * 2);
+            numberContext.fill();
+            numberContext.fillStyle = '#ffffff';
+            numberContext.font = 'bold 68px sans-serif';
+            numberContext.textAlign = 'center';
+            numberContext.textBaseline = 'middle';
+            numberContext.fillText(String(floor), 64, 66);
+          }
+          const numberTexture = new THREE.CanvasTexture(numberCanvas);
+          const numberLabel = new THREE.Sprite(new THREE.SpriteMaterial({
+            map: numberTexture,
+            transparent: true,
+            depthTest: true,
+            depthWrite: false,
+          }));
+          numberLabel.scale.set(0.34, 0.34, 1);
+          numberLabel.position.set(x, (floor - 0.5) * floorHeight, z + depth / 2 + 0.035);
+          scene.add(numberLabel);
+        }
       }
       floorMaterials.forEach(material => material.dispose());
 
@@ -186,7 +215,7 @@ export const Map3DView: React.FC<Map3DViewProps> = ({ blocks, settings, lang, th
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
-    let pointerStart: { x: number; y: number } | null = null;
+    let pointerStart: { x: number; y: number; pointerId: number } | null = null;
     let hoveredFloor: THREE.Mesh | null = null;
     const updateFloorHover = (nextFloor: THREE.Mesh | null) => {
       if (hoveredFloor === nextFloor) return;
@@ -206,6 +235,7 @@ export const Map3DView: React.FC<Map3DViewProps> = ({ blocks, settings, lang, th
       renderer.domElement.style.cursor = hoveredFloor ? 'pointer' : 'grab';
     };
     const handlePointerMove = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return;
       const rect = renderer.domElement.getBoundingClientRect();
       pointer.set(
         ((event.clientX - rect.left) / rect.width) * 2 - 1,
@@ -215,11 +245,15 @@ export const Map3DView: React.FC<Map3DViewProps> = ({ blocks, settings, lang, th
       updateFloorHover((raycaster.intersectObjects(buildingMeshes)[0]?.object as THREE.Mesh | undefined) ?? null);
     };
     const handlePointerDown = (event: PointerEvent) => {
-      pointerStart = { x: event.clientX, y: event.clientY };
+      if (event.button !== 0) return;
+      pointerStart = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
     };
     const handlePointerUp = (event: PointerEvent) => {
-      if (!pointerStart || Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y) > 5) return;
+      const start = pointerStart;
+      if (!start || start.pointerId !== event.pointerId) return;
       pointerStart = null;
+      const movementThreshold = event.pointerType === 'touch' ? 10 : 5;
+      if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > movementThreshold) return;
       const rect = renderer.domElement.getBoundingClientRect();
       pointer.set(
         ((event.clientX - rect.left) / rect.width) * 2 - 1,
@@ -229,9 +263,11 @@ export const Map3DView: React.FC<Map3DViewProps> = ({ blocks, settings, lang, th
       const hit = raycaster.intersectObjects(buildingMeshes)[0];
       if (hit?.object.userData.blockId) onBlockClickRef.current?.(hit.object.userData.blockId, hit.object.userData.floor);
     };
+    const handlePointerCancel = () => { pointerStart = null; };
     renderer.domElement.addEventListener('pointerdown', handlePointerDown);
     renderer.domElement.addEventListener('pointermove', handlePointerMove);
     renderer.domElement.addEventListener('pointerup', handlePointerUp);
+    renderer.domElement.addEventListener('pointercancel', handlePointerCancel);
 
     const resizeObserver = new ResizeObserver(() => {
       const width = host.clientWidth;
@@ -259,6 +295,7 @@ export const Map3DView: React.FC<Map3DViewProps> = ({ blocks, settings, lang, th
       renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
       renderer.domElement.removeEventListener('pointermove', handlePointerMove);
       renderer.domElement.removeEventListener('pointerup', handlePointerUp);
+      renderer.domElement.removeEventListener('pointercancel', handlePointerCancel);
       scene.traverse(object => {
         if (object instanceof THREE.Sprite) {
           object.material.map?.dispose();

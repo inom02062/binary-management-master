@@ -244,10 +244,14 @@ export const api = {
       if (result.ok) setTenantStorageScope(result.user?.tenantId);
       return result;
     } catch (e) {
-      if (e instanceof ApiError && e.status === 403 && e.message.includes('password_reset_required')) {
-        return { ok: false, reason: 'password_reset_required' };
+      if (e instanceof ApiError) {
+        if (e.status === 401) return { ok: false, reason: 'invalid_credentials' };
+        if (e.status === 403 && e.message.includes('password_reset_required')) {
+          return { ok: false, reason: 'password_reset_required' };
+        }
+        if (e.status === 429) return { ok: false, reason: 'too_many_attempts' };
       }
-      return { ok: false, reason: e instanceof ApiError ? 'invalid_credentials' : 'server_unavailable' };
+      return { ok: false, reason: 'server_unavailable' };
     }
   },
 
