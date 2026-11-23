@@ -262,7 +262,11 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 font-sans selection:bg-blue-500/20">
       {!currentUser ? <LoginScreen onLogin={acceptLogin} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} /> : <>{renderContent()}
       {view.type !== 'CONTROL_PANEL' && (
-        <nav className="app-mobile-nav" aria-label={lang === 'uz' ? 'Mobil navigatsiya' : lang === 'ru' ? 'Мобильная навигация' : 'Mobile navigation'}>
+        <nav
+          className="app-mobile-nav"
+          style={{ gridTemplateColumns: `repeat(${currentUser.role === 'VIEWER' ? 4 : 5}, minmax(0, 1fr))` }}
+          aria-label={lang === 'uz' ? 'Mobil navigatsiya' : lang === 'ru' ? 'Мобильная навигация' : 'Mobile navigation'}
+        >
           <button type="button" className={view.type === 'DASHBOARD' ? 'active' : ''} onClick={() => setView({ type: 'DASHBOARD' })}>
             <LayoutDashboard size={20} />
             <span>{lang === 'uz' ? 'Bosh sahifa' : lang === 'ru' ? 'Главная' : 'Home'}</span>

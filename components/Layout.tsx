@@ -10,8 +10,8 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ title, onBack, children, actions }) => {
   return (
-    <div className="h-dvh min-h-0 overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.08),_transparent_35%),linear-gradient(to_bottom,_#f8fafc,_#eef4ff_40%,_#f8fafc)] dark:bg-[radial-gradient(circle_at_top,_rgba(96,165,250,0.12),_transparent_28%),linear-gradient(to_bottom,_#020817,_#0f172a_35%,_#020817)] text-slate-800 dark:text-slate-100 flex flex-col w-full mx-auto transition-colors duration-200">
-      <header className="sticky top-0 z-50 shrink-0 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80 shadow-[0_1px_0_rgba(15,23,42,0.04)]">
+    <div className="h-dvh min-h-0 overflow-hidden bg-[#f5f5f7] text-slate-800 dark:bg-[#090b10] dark:text-slate-100 flex flex-col w-full mx-auto transition-colors duration-200">
+      <header className="sticky top-0 z-50 shrink-0 border-b border-slate-200/70 bg-white/85 backdrop-blur-2xl dark:border-slate-800/80 dark:bg-slate-950/85 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
         <div className="layout-header-inner mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="layout-header-title flex min-w-0 items-center gap-3">
             {onBack && (
